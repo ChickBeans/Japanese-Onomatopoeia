@@ -1,12 +1,8 @@
 // ふわふわ — fluffy cotton puffs that float down slowly.
 SCENES.push({
   id: 'fuwafuwa', kana: 'ふわふわ', kata: 'フワフワ', romaji: 'fuwa-fuwa', emoji: '☁️',
+  cue: (s) => { const f = s.puffs[0]; return { x: f.x, y: f.y, x2: f.x + 20, y2: Math.max(40, f.y - 160) }; },
   color: '#f9c9dc', accent: '#e46a9c',
-  short: 'Soft, fluffy, light as air',
-  meaning: 'Soft, fluffy and light as air.',
-  nuance: '😊 Pleasant — cotton, clouds, pancakes, a fresh towel.',
-  example: { ja: 'このパンケーキはふわふわだ。', en: 'This pancake is light and fluffy.' },
-  hint: 'Grab a cotton puff, lift it up high and let go. Tap one to squish it.',
   create: (w, h) => new FuwaScene(w, h),
 });
 

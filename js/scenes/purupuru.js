@@ -1,12 +1,8 @@
 // ぷるぷる — a custard pudding on a plate that wobbles when you poke it or shake the plate.
 SCENES.push({
   id: 'purupuru', kana: 'ぷるぷる', kata: 'プルプル', romaji: 'puru-puru', emoji: '🍮',
+  cue: (s) => { const b = s.body, i = s.topCenter; return { x: b.x[i] + s.R * 0.4, y: b.y[i] + s.R * 0.5 }; },
   color: '#ffe08a', accent: '#d48a10',
-  short: 'Jiggly, wobbly, bouncy-soft',
-  meaning: 'Jiggly and wobbly, soft and bouncy — like jelly or pudding.',
-  nuance: '😊 Pudding, jelly, plump lips or skin. (Shaking from cold or fear is also ぷるぷる.)',
-  example: { ja: 'ぷるぷるのプリンが食べたい。', en: 'I want to eat a jiggly pudding.' },
-  hint: 'Tap the pudding, or drag the plate left and right to shake it.',
   create: (w, h) => new PuruScene(w, h),
 });
 
@@ -234,12 +230,6 @@ class PuruScene {
     ctx.beginPath(); ctx.arc(-R * 0.04, -R * 0.55, R * 0.035, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
-    if (this.grab && this.grab.kind === 'plate') {
-      ctx.fillStyle = 'rgba(30,30,40,0.55)';
-      ctx.font = '700 13px "M PLUS Rounded 1c", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('← shake →', pl.x, pl.y + 46);
-    }
     this.texts.draw(ctx);
   }
 }

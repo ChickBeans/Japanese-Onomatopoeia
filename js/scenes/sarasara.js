@@ -1,12 +1,8 @@
 // さらさら — scoop up fine dry sand and let it slip through your fingers.
 SCENES.push({
   id: 'sarasara', kana: 'さらさら', kata: 'サラサラ', romaji: 'sara-sara', emoji: '⏳',
+  cue: (s) => ({ x: s.w * 0.3, y: s.h * 0.92, x2: s.w * 0.45, y2: s.h * 0.3, hold: true }),
   color: '#f6e2b0', accent: '#b8862c',
-  short: 'Dry, smooth, flowing freely',
-  meaning: 'Dry, fine and smooth; flowing freely without sticking (sand, silky hair, dry powder).',
-  nuance: '😊 Pleasant: silky hair, fresh sheets, a gentle stream. Opposite of べたべた (sticky).',
-  example: { ja: '彼女の髪はさらさらだ。', en: 'Her hair is silky smooth.' },
-  hint: 'Press on the sand to scoop it up. Hold to let it trickle out, release to drop it all.',
   create: (w, h) => new SaraScene(w, h),
 });
 

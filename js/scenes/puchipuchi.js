@@ -1,12 +1,8 @@
 // ぷちぷち — bubble wrap. Press each bubble until it pops.
 SCENES.push({
   id: 'puchipuchi', kana: 'ぷちぷち', kata: 'プチプチ', romaji: 'puchi-puchi', emoji: '🫧',
+  cue: (s) => { const b = s.bubbles[Math.floor(s.bubbles.length / 2)]; return { x: b.x, y: b.y }; },
   color: '#cfe3ff', accent: '#3b7bd8',
-  short: 'Little popping bubbles',
-  meaning: 'Lots of little things popping one after another; the feel of tiny beads bursting.',
-  nuance: '😊 Fun: bubble wrap (literally called プチプチ in Japan), salmon roe, tapioca pearls.',
-  example: { ja: 'いくらのぷちぷちした食感が好き。', en: 'I love the poppy texture of salmon roe.' },
-  hint: 'Press the bubbles to pop them. Drag across many at once!',
   create: (w, h) => new PuchiScene(w, h),
 });
 
@@ -144,11 +140,6 @@ class PuchiScene {
       ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(q.x - q.vx * 0.04, q.y - q.vy * 0.04); ctx.stroke();
     }
     ctx.globalAlpha = 1;
-    // counter
-    ctx.font = '800 14px "M PLUS Rounded 1c", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(40,70,120,0.75)';
-    ctx.fillText(`ぷちっ × ${this.popped} / ${this.bubbles.length}`, 12, h - 12);
     this.texts.draw(ctx);
   }
 }

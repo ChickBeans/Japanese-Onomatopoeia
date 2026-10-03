@@ -1,12 +1,8 @@
 // ざらざら — rub your finger over sandpaper: it catches, judders and scatters grit.
 SCENES.push({
   id: 'zarazara', kana: 'ざらざら', kata: 'ザラザラ', romaji: 'zara-zara', emoji: '🪨',
+  cue: (s) => ({ x: s.w * 0.25, y: s.boardH * 0.5, x2: s.w * 0.75, y2: s.boardH * 0.5, rub: true }),
   color: '#d8c3a0', accent: '#8a6a3a',
-  short: 'Rough, gritty, coarse',
-  meaning: 'Rough and gritty to the touch; a coarse, bumpy surface.',
-  nuance: '😕 Usually not nice: sandpaper, a sandy floor, rough dry skin, a husky voice.',
-  example: { ja: '紙やすりはざらざらしている。', en: 'Sandpaper feels rough.' },
-  hint: 'Rub your finger back and forth across the surface. Feel it catch on the bumps.',
   create: (w, h) => new ZaraScene(w, h),
 });
 
@@ -150,10 +146,6 @@ class ZaraScene {
     // cross-section panel: the finger riding over the bumps
     const y0 = boardH;
     ctx.fillStyle = '#fbf6ee'; ctx.fillRect(0, y0, w, secH);
-    ctx.fillStyle = 'rgba(80,60,40,0.55)';
-    ctx.font = '700 12px "M PLUS Rounded 1c", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('断面 cross-section (zoomed)', 12, y0 + 18);
     const base = y0 + secH - 22;
     ctx.beginPath();
     ctx.moveTo(0, base + 20);

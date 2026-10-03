@@ -16,11 +16,11 @@ Each word is its own physics toy: you learn the word by feeling what it describe
 | さらさら sara-sara | Scoop up dry sand and let it slip through your fingers. |
 | ぷちぷち puchi-puchi | Pop bubble wrap. |
 
-Each scene also includes:
-- the meaning in English and a note on nuance (pleasant or unpleasant)
-- an example sentence. Tap it, or tap the word, to hear it read aloud in Japanese (browser speech synthesis).
-- sound effects synthesized with the Web Audio API, plus vibration on Android
-- the onomatopoeia popping up as text (ぷちっ, もちっ, つるーっ …) wherever things happen
+The app does not explain anything in text. Each scene shows only the word, and the motion teaches it:
+- When a scene opens, a ghost finger shows the gesture to try.
+- The word pops up as text (ぷちっ, もちっ, つるーっ …) wherever things happen.
+- Tap the word to hear it in Japanese (browser speech synthesis).
+- Sound effects are synthesized with the Web Audio API. Android phones also vibrate.
 
 ## Run it
 

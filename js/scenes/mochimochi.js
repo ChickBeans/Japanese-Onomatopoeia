@@ -1,12 +1,8 @@
 // もちもち — a rice cake stuck to the board: pinch it and it stretches, then slowly comes back.
 SCENES.push({
   id: 'mochimochi', kana: 'もちもち', kata: 'モチモチ', romaji: 'mochi-mochi', emoji: '🍡',
+  cue: (s) => { const b = s.body; let t = 0; for (let i = 0; i < b.n; i++) if (b.y[i] < b.y[t]) t = i; return { x: b.x[t] + 20, y: b.y[t] + 6, x2: b.x[t] + 70, y2: b.y[t] - s.R * 1.6 }; },
   color: '#f3e3c7', accent: '#c48a3a',
-  short: 'Soft, stretchy and chewy',
-  meaning: 'Soft, springy and chewy — stretchy and elastic like mochi rice cake.',
-  nuance: '😊 Very positive for food: bread, noodles, dumplings. Also baby cheeks!',
-  example: { ja: 'このパンはもちもちしている。', en: 'This bread is soft and chewy.' },
-  hint: 'Pinch the edge of the mochi and pull it far away. Tap it to poke a dent.',
   create: (w, h) => new MochiScene(w, h),
 });
 

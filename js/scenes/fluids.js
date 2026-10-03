@@ -127,12 +127,8 @@ class FluidScene {
 // ---------- どろどろ ----------
 SCENES.push({
   id: 'dorodoro', kana: 'どろどろ', kata: 'ドロドロ', romaji: 'doro-doro', emoji: '🟤',
+  cue: (s) => ({ x: s.w * 0.2, y: s.h * 0.88, x2: s.w * 0.8, y2: s.h * 0.86 }),
   color: '#c9a27e', accent: '#7a4a24',
-  short: 'Thick, muddy, sludgy',
-  meaning: 'Thick, heavy and muddy; a sludgy liquid that oozes slowly. (泥 doro = mud)',
-  nuance: '😖 Usually unpleasant: mud, sludge, melted things. Also thick stews, or messy emotions.',
-  example: { ja: '雨で道がどろどろになった。', en: 'The rain turned the road into thick mud.' },
-  hint: 'Stir the mud with your finger. Then press "Pour again" and watch it pile up.',
   create: (w, h) => new FluidScene(w, h, {
     fill: 0.26,
     fluid: { gravity: 0.008, rho0: 2, k: 0.02, kNear: 0.1, sigma: 0.3, beta: 0.2, xsph: 0.4, bulkDrag: 0.04, springs: true, kSpring: 0.05, plasticity: 0.5, yieldRatio: 0.05, wallFriction: 0.5 },
@@ -179,12 +175,8 @@ SCENES.push({
 // ---------- しゃばしゃば ----------
 SCENES.push({
   id: 'shabashaba', kana: 'しゃばしゃば', kata: 'シャバシャバ', romaji: 'shaba-shaba', emoji: '💧',
+  cue: (s) => ({ x: s.w * 0.2, y: s.h * 0.9, x2: s.w * 0.8, y2: s.h * 0.88, fast: true }),
   color: '#ffd98a', accent: '#c98a12',
-  short: 'Watery, thin, runny',
-  meaning: 'Watery and thin; runnier than it should be (sauce, curry, soup).',
-  nuance: '😕 Often a complaint about food that is too thin. The opposite of どろどろ.',
-  example: { ja: 'このカレー、しゃばしゃばだね。', en: 'This curry is really watery, isn’t it?' },
-  hint: 'Stir fast and splash it around. Press "Pour again" — compare with どろどろ!',
   create: (w, h) => new FluidScene(w, h, {
     fill: 0.26,
     fluid: { gravity: 0.008, rho0: 2, k: 0.02, kNear: 0.1, sigma: 0.0, beta: 0.04, wallFriction: 0.02 },
@@ -196,11 +188,6 @@ SCENES.push({
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f6ead6');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      // plate pattern
-      ctx.strokeStyle = 'rgba(70,110,170,0.18)'; ctx.lineWidth = 3;
-      ctx.strokeRect(10, 10, w - 20, h - 20);
-      ctx.strokeStyle = 'rgba(70,110,170,0.1)'; ctx.lineWidth = 1.5;
-      ctx.strokeRect(20, 20, w - 40, h - 40);
       // a few rice grains peeking out
       ctx.fillStyle = '#ffffff';
       for (let i = 0; i < 26; i++) {
@@ -243,12 +230,8 @@ SCENES.push({
 // ---------- ねちょねちょ ----------
 SCENES.push({
   id: 'nechonecho', kana: 'ねちょねちょ', kata: 'ネチョネチョ', romaji: 'necho-necho', emoji: '🟢',
+  cue: (s) => { const f = s.fluid; let t = 0; for (let i = 0; i < f.n; i++) if (f.y[i] < f.y[t]) t = i; const x = f.x[t] * s.hp, y = f.y[t] * s.hp + 8; return { x, y, x2: x + 10, y2: y - s.h * 0.35 }; },
   color: '#b9e58f', accent: '#4f9a1e',
-  short: 'Sticky, gooey, slimy',
-  meaning: 'Sticky and gooey; clings to you and stretches in strings when you pull away.',
-  nuance: '🤢 Unpleasant: slime, gum on a shoe, sweaty skin. Similar: ねばねば (natto), べたべた.',
-  example: { ja: 'ガムが靴の裏にくっついてねちょねちょする。', en: 'Gum is stuck to my shoe and it’s all gooey.' },
-  hint: 'Touch the slime and slowly pull away. Fling some at the walls — it sticks!',
   create: (w, h) => new FluidScene(w, h, {
     fill: 0.2,
     fluid: {

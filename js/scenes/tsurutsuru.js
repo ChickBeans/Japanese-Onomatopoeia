@@ -1,12 +1,8 @@
 // つるつる — a wooden floor next to a sheet of ice. Things glide forever on the ice.
 SCENES.push({
   id: 'tsurutsuru', kana: 'つるつる', kata: 'ツルツル', romaji: 'tsuru-tsuru', emoji: '🧊',
+  cue: (s) => { const o = s.objs[0]; return { x: o.x, y: o.y, x2: o.x + s.w * 0.45, y2: o.y - 30, fast: true }; },
   color: '#bfe6f7', accent: '#2b8fc4',
-  short: 'Smooth and slippery',
-  meaning: 'Smooth, slick and slippery; also shiny-smooth (bald head, polished floor).',
-  nuance: '⚠️ / 😊 Slippery ice is dangerous, smooth skin is nice. Also used for slurping noodles.',
-  example: { ja: '道が凍ってつるつるだ。', en: 'The road is frozen and slippery.' },
-  hint: 'Fling the things onto the ice. Compare how they stop on the wooden floor.',
   create: (w, h) => new TsuruScene(w, h),
 });
 
@@ -272,13 +268,6 @@ class TsuruScene {
     ctx.restore();
     ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(iceX, gy, w - iceX, 3);
 
-    // floor labels
-    ctx.font = `700 ${Math.round(14 * s + 2)}px "M PLUS Rounded 1c", sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fillText('木 wood', iceX / 2, gy + 32);
-    ctx.fillStyle = 'rgba(20,90,130,0.75)';
-    ctx.fillText('氷 ice = つるつる', iceX + (w - iceX) / 2, gy + 32);
 
     for (const p of this.parts) {
       ctx.globalAlpha = Math.min(1, p.life * 2);

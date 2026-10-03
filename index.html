@@ -1,57 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#fff7ef">
-  <title>Touch Onomatopoeia</title>
-  <meta name="description" content="Learn Japanese texture onomatopoeia (ふわふわ, つるつる, もちもち …) by touching them.">
+  <meta name="theme-color" content="#f7f5f2">
+  <title>さわる</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main id="home" class="screen">
-    <header class="home-head">
-      <h1>
-        <span class="jp">さわって おぼえる</span>
-        <span class="title">Touch Onomatopoeia</span>
-      </h1>
-      <p class="lead">Japanese has special words for how things <em>feel</em>. Touch, pull, pour and pop each one to learn it with your hands.</p>
-    </header>
-    <div id="cards" class="cards"></div>
-    <footer class="home-foot">🔊 Sound on recommended · works with mouse or touch</footer>
-  </main>
+  <main id="home" class="screen"><div id="tiles" class="tiles"></div></main>
 
-  <section id="stage" class="screen hidden" aria-live="polite">
-    <header class="bar">
-      <button id="btn-home" class="icon-btn" aria-label="Back to list">←</button>
-      <button id="word" class="word" aria-label="Say the word">
+  <section id="stage" class="screen hidden">
+    <header class="top">
+      <button id="btn-home" class="ghost" aria-label="back">←</button>
+      <button id="word" class="word" aria-label="say it">
         <span id="w-kana" class="kana"></span>
-        <span class="sub"><span id="w-kata"></span> · <span id="w-romaji"></span> 🔊</span>
+        <span id="w-romaji" class="romaji"></span>
       </button>
-      <button id="btn-mute" class="icon-btn" aria-label="Mute">🔈</button>
+      <span class="ghost spacer"></span>
     </header>
-
-    <div id="canvas-wrap">
-      <canvas id="cv"></canvas>
-      <div id="hint" class="hint"></div>
-      <div id="actions" class="actions"></div>
-    </div>
-
-    <footer class="info">
-      <div class="meaning"><strong id="w-meaning"></strong> <span id="w-nuance" class="nuance"></span></div>
-      <button id="example" class="example" aria-label="Say the example">
-        <span id="ex-ja" class="ex-ja"></span>
-        <span id="ex-en" class="ex-en"></span>
-      </button>
-      <nav class="nav">
-        <button id="btn-prev" class="nav-btn">‹ <span id="prev-name"></span></button>
-        <span id="pos" class="pos"></span>
-        <button id="btn-next" class="nav-btn"><span id="next-name"></span> ›</button>
-      </nav>
-    </footer>
+    <div id="canvas-wrap"><canvas id="cv"></canvas></div>
+    <nav class="bottom">
+      <button id="btn-prev" class="ghost" aria-label="previous">‹</button>
+      <button id="btn-reset" class="ghost small" aria-label="reset">↺</button>
+      <button id="btn-next" class="ghost" aria-label="next">›</button>
+    </nav>
   </section>
 
   <script src="js/util.js"></script>
