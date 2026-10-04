@@ -1,6 +1,7 @@
 // つるつる — a wooden floor next to a sheet of ice. Things glide forever on the ice.
 SCENES.push({
   id: 'tsurutsuru', kana: 'つるつる', kata: 'ツルツル', romaji: 'tsuru-tsuru', emoji: '🧊',
+  act: { ja: '氷の上に物を滑らせてみよう', en: 'Slide things across the ice.' },
   cue: (s) => { const o = s.objs[0]; return { x: o.x, y: o.y, x2: o.x + s.w * 0.45, y2: o.y - 30, fast: true }; },
   color: '#bfe6f7', accent: '#2b8fc4',
   create: (w, h) => new TsuruScene(w, h),
@@ -38,7 +39,7 @@ class TsuruScene {
     this.objs = [
       mk('crate', x0 * 0.25, 30 * s, 30 * s),
       mk('stone', x0 * 0.6, 30 * s, 20 * s),
-      mk('penguin', x0 + (this.w - x0) * 0.35, 22 * s, 34 * s),
+      mk('rock', x0 + (this.w - x0) * 0.35, 26 * s, 24 * s),
     ];
   }
 
@@ -214,32 +215,24 @@ class TsuruScene {
   }
 
   draw(ctx) {
-    const { w, h, gy, iceX, s } = this;
-    // wintry backdrop
-    const sky = ctx.createLinearGradient(0, 0, 0, gy);
-    sky.addColorStop(0, '#cfe9fb'); sky.addColorStop(1, '#f2fbff');
-    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, gy);
-    ctx.fillStyle = '#e4f2fb';
-    ctx.beginPath(); ctx.moveTo(0, gy);
-    for (let i = 0; i <= 8; i++) ctx.lineTo((w / 8) * i, gy - 40 - ((i * 37) % 60) * s);
-    ctx.lineTo(w, gy); ctx.fill();
+    const { w, h, gy, iceX } = this;
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
 
-    // wooden floor
-    ctx.fillStyle = '#c99a6b'; ctx.fillRect(0, gy, iceX, h - gy);
-    ctx.strokeStyle = 'rgba(90,55,25,0.35)'; ctx.lineWidth = 1.5;
-    for (let y = gy + 18; y < h; y += 22) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(iceX, y); ctx.stroke(); }
-    for (let r = 0, y = gy; y < h; r++, y += 22) {
-      for (let x = (r % 2) * 40 + 30; x < iceX; x += 80) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 22); ctx.stroke(); }
+    // wood: dark, with plank seams
+    ctx.fillStyle = '#1e1c1a'; ctx.fillRect(0, gy, iceX, h - gy);
+    ctx.strokeStyle = '#2e2b28'; ctx.lineWidth = 1;
+    for (let y = gy + 14; y < h; y += 16) { ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(iceX, y + 0.5); ctx.stroke(); }
+    for (let r = 0, y = gy; y < h; r++, y += 16) {
+      for (let x = (r % 2) * 30 + 20; x < iceX; x += 60) { ctx.beginPath(); ctx.moveTo(x + 0.5, y); ctx.lineTo(x + 0.5, y + 16); ctx.stroke(); }
     }
-    ctx.fillStyle = '#b08156'; ctx.fillRect(0, gy, iceX, 5);
 
-    // ice: glossy, with reflections
+    // ice: pale, glossy, reflective
     const ice = ctx.createLinearGradient(0, gy, 0, h);
-    ice.addColorStop(0, '#e8f8ff'); ice.addColorStop(0.3, '#bfe7f8'); ice.addColorStop(1, '#8fcfee');
+    ice.addColorStop(0, '#9fb1bb'); ice.addColorStop(1, '#43535c');
     ctx.fillStyle = ice; ctx.fillRect(iceX, gy, w - iceX, h - gy);
     ctx.save();
     ctx.beginPath(); ctx.rect(iceX, gy, w - iceX, h - gy); ctx.clip();
-    ctx.globalAlpha = 0.28;
+    ctx.globalAlpha = 0.3;
     for (const o of this.objs) {
       ctx.save();
       ctx.translate(o.x, gy + (gy - (o.y + o.hh)));
@@ -249,7 +242,7 @@ class TsuruScene {
       ctx.restore();
     }
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 0.8;
     for (const c of this.cracks) {
       ctx.beginPath();
       c.forEach(([u, v], i) => {
@@ -258,33 +251,25 @@ class TsuruScene {
       });
       ctx.stroke();
     }
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    for (let i = 0; i < 4; i++) {
-      const x = iceX + ((i * 0.27 + 0.1) * (w - iceX) + this.t * 4) % (w - iceX);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    for (let i = 0; i < 3; i++) {
+      const x = iceX + ((i * 0.33 + 0.1) * (w - iceX) + this.t * 4) % (w - iceX);
       ctx.beginPath();
-      ctx.moveTo(x, gy + 6); ctx.lineTo(x + 26, gy + 6); ctx.lineTo(x - 30, h); ctx.lineTo(x - 64, h);
+      ctx.moveTo(x, gy); ctx.lineTo(x + 18, gy); ctx.lineTo(x - 30, h); ctx.lineTo(x - 48, h);
       ctx.fill();
     }
     ctx.restore();
-    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(iceX, gy, w - iceX, 3);
-
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(iceX, gy, w - iceX, 1.5);
 
     for (const p of this.parts) {
       ctx.globalAlpha = Math.min(1, p.life * 2);
-      if (p.kind === 'spark') {
-        ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.fillStyle = 'rgba(170,130,90,0.3)';
-        ctx.beginPath(); ctx.arc(p.x, p.y, 2 + (0.8 - p.life) * 6, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.fillStyle = p.kind === 'spark' ? '#ffffff' : 'rgba(150,140,130,0.35)';
+      const r = p.kind === 'spark' ? 1.4 : 1.5 + (0.8 - p.life) * 5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
 
     for (const o of this.objs) {
-      const lift = U.clamp((gy - o.y - o.hh) / 200, 0, 1);
-      ctx.fillStyle = `rgba(0,30,60,${0.15 * (1 - lift)})`;
-      ctx.beginPath(); ctx.ellipse(o.x, gy + 2, o.hw * (1.1 - lift * 0.4), 5, 0, 0, Math.PI * 2); ctx.fill();
       ctx.save();
       ctx.translate(o.x, o.y + o.hh);
       ctx.rotate(o.ang);
@@ -294,37 +279,28 @@ class TsuruScene {
     this.texts.draw(ctx);
   }
 
-  // drawn with origin at bottom-centre of the object
+  // drawn with origin at bottom-centre of the object; flat-shaded faces
   drawObj(ctx, o) {
     const { hw, hh } = o;
+    const face = (pts, c) => {
+      ctx.fillStyle = c; ctx.beginPath();
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath(); ctx.fill();
+    };
     if (o.type === 'crate') {
-      ctx.fillStyle = '#d9a35f'; ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 3;
-      ctx.fillRect(-hw, -hh * 2, hw * 2, hh * 2);
-      ctx.strokeRect(-hw + 1.5, -hh * 2 + 1.5, hw * 2 - 3, hh * 2 - 3);
-      ctx.beginPath(); ctx.moveTo(-hw, -hh * 2); ctx.lineTo(hw, 0); ctx.moveTo(hw, -hh * 2); ctx.lineTo(-hw, 0); ctx.stroke();
+      const d = hw * 0.35;
+      face([[-hw, 0], [hw - d, 0], [hw - d, -hh * 2 + d], [-hw, -hh * 2 + d]], '#bdbdbd');
+      face([[-hw, -hh * 2 + d], [hw - d, -hh * 2 + d], [hw, -hh * 2], [-hw + d, -hh * 2]], '#ececec');
+      face([[hw - d, 0], [hw, -d], [hw, -hh * 2], [hw - d, -hh * 2 + d]], '#7d7d7d');
     } else if (o.type === 'stone') {
-      // curling stone
-      ctx.fillStyle = '#8b8f99';
-      ctx.beginPath(); ctx.ellipse(0, -hh * 0.75, hw, hh * 0.75, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#a9aeb8';
-      ctx.beginPath(); ctx.ellipse(0, -hh * 0.95, hw * 0.85, hh * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#e04848';
-      ctx.fillRect(-hw * 0.12, -hh * 1.75, hw * 0.24, hh * 0.6);
-      ctx.fillRect(-hw * 0.12, -hh * 1.75, hw * 0.75, hh * 0.22);
+      // puck: a short prism
+      face([[-hw, -hh * 0.4], [hw, -hh * 0.4], [hw * 0.9, 0], [-hw * 0.9, 0]], '#6f6f6f');
+      face([[-hw, -hh * 0.4], [-hw * 0.6, -hh * 1.1], [hw * 0.6, -hh * 1.1], [hw, -hh * 0.4]], '#a8a8a8');
+      face([[-hw * 0.6, -hh * 1.1], [-hw * 0.2, -hh * 1.5], [hw * 0.3, -hh * 1.5], [hw * 0.6, -hh * 1.1]], '#d6d6d6');
     } else {
-      // penguin
-      ctx.fillStyle = '#f39a2b';
-      ctx.beginPath(); ctx.ellipse(-hw * 0.4, -2, hw * 0.4, 4, 0, 0, Math.PI * 2); ctx.ellipse(hw * 0.4, -2, hw * 0.4, 4, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#26324a';
-      ctx.beginPath(); ctx.ellipse(0, -hh, hw, hh, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(0, -hh * 0.85, hw * 0.68, hh * 0.75, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#26324a';
-      ctx.beginPath(); ctx.arc(-hw * 0.3, -hh * 1.45, 2.6, 0, Math.PI * 2); ctx.arc(hw * 0.3, -hh * 1.45, 2.6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#f39a2b';
-      ctx.beginPath(); ctx.moveTo(-5, -hh * 1.32); ctx.lineTo(5, -hh * 1.32); ctx.lineTo(0, -hh * 1.18); ctx.fill();
-      ctx.fillStyle = 'rgba(255,120,140,0.5)';
-      ctx.beginPath(); ctx.arc(-hw * 0.5, -hh * 1.25, 3.5, 0, Math.PI * 2); ctx.arc(hw * 0.5, -hh * 1.25, 3.5, 0, Math.PI * 2); ctx.fill();
+      // rock: a faceted lump
+      const xs = [-hw, -hw * 0.8, -hw * 0.2, hw * 0.5, hw, hw * 0.9], ys = [0, -hh * 1.3, -hh * 2, -hh * 1.7, -hh * 0.8, 0];
+      U.facet(ctx, xs, ys, 6, -hw * 0.1, -hh * 1.0, [210, 210, 210], { lo: 0.3, inner: 0.45 });
     }
   }
 }

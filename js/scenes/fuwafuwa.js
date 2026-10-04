@@ -1,6 +1,7 @@
 // ふわふわ — fluffy cotton puffs that float down slowly.
 SCENES.push({
   id: 'fuwafuwa', kana: 'ふわふわ', kata: 'フワフワ', romaji: 'fuwa-fuwa', emoji: '☁️',
+  act: { ja: '綿を高いところから落としてみよう', en: 'Lift the cotton up high and let it go.' },
   cue: (s) => { const f = s.puffs[0]; return { x: f.x, y: f.y, x2: f.x + 20, y2: Math.max(40, f.y - 160) }; },
   color: '#f9c9dc', accent: '#e46a9c',
   create: (w, h) => new FuwaScene(w, h),
@@ -171,46 +172,23 @@ class FuwaScene {
 
   draw(ctx) {
     const { w, h, floor } = this;
-    const sky = ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, '#a9b8f0');
-    sky.addColorStop(0.65, '#d9c8f0');
-    sky.addColorStop(1, '#f3cfe2');
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, w, h);
-    // drifting background clouds
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    for (let i = 0; i < 4; i++) {
-      const cx = ((this.t * (6 + i * 3) + i * 260) % (w + 300)) - 150, cy = 40 + i * 45;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, 70, 18, 0, 0, Math.PI * 2);
-      ctx.ellipse(cx + 40, cy - 8, 45, 16, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // floor: a soft blanket
-    ctx.fillStyle = '#eab3cc';
-    ctx.fillRect(0, floor, w, h - floor);
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.setLineDash([6, 8]);
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(0, floor + 8); ctx.lineTo(w, floor + 8); ctx.stroke();
-    ctx.setLineDash([]);
-
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = INK.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, floor + 0.5); ctx.lineTo(w, floor + 0.5); ctx.stroke();
     for (const f of this.puffs) {
+      // faint contact shadow that shrinks as the puff rises
       const lift = U.clamp((floor - f.y) / 300, 0, 1);
-      ctx.fillStyle = `rgba(150,90,130,${0.18 * (1 - lift * 0.7)})`;
-      ctx.beginPath();
-      ctx.ellipse(f.x, floor + 2, f.r * (0.9 - lift * 0.3), f.r * 0.14, 0, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,${0.05 * (1 - lift)})`;
+      ctx.beginPath(); ctx.ellipse(f.x, floor + 1, f.r * (0.9 - lift * 0.4), 3, 0, 0, Math.PI * 2); ctx.fill();
     }
     for (const f of this.puffs) this.drawPuff(ctx, f);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 0.8;
     for (const fb of this.fibers) {
       ctx.globalAlpha = Math.min(1, fb.life);
       ctx.beginPath();
       ctx.moveTo(fb.x - Math.cos(fb.ang) * fb.len / 2, fb.y - Math.sin(fb.ang) * fb.len / 2);
-      ctx.quadraticCurveTo(fb.x + 2, fb.y - 2, fb.x + Math.cos(fb.ang) * fb.len / 2, fb.y + Math.sin(fb.ang) * fb.len / 2);
+      ctx.lineTo(fb.x + Math.cos(fb.ang) * fb.len / 2, fb.y + Math.sin(fb.ang) * fb.len / 2);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -223,55 +201,30 @@ class FuwaScene {
     ctx.translate(f.x, f.y + r * 0.82 * (1 - f.sq));
     ctx.rotate(f.rot);
     ctx.scale(1 + (1 - f.sq) * 0.9, f.sq);
-    // airy halo
-    const halo = ctx.createRadialGradient(0, 0, r * 0.6, 0, 0, r * 1.35);
-    halo.addColorStop(0, `rgba(${f.tint},0.55)`);
-    halo.addColorStop(1, `rgba(${f.tint},0)`);
+    const halo = ctx.createRadialGradient(0, 0, r * 0.7, 0, 0, r * 1.45);
+    halo.addColorStop(0, 'rgba(255,255,255,0.16)');
+    halo.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = halo;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.35, 0, Math.PI * 2); ctx.fill();
-    // fibres behind the body
-    ctx.lineWidth = 0.9;
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.45, 0, Math.PI * 2); ctx.fill();
+    // loose fibres
+    ctx.lineWidth = 0.7;
     for (const fb of f.fibres) {
       const a = fb.a + Math.sin(t * 0.9 + fb.a * 4) * 0.04;
-      const r0 = r * fb.r0, r1 = r * (fb.r0 + fb.l + 0.04 * Math.sin(t * 1.7 + fb.a * 7));
-      ctx.strokeStyle = fb.dark ? 'rgba(170,160,205,0.35)' : 'rgba(255,255,255,0.8)';
+      const r0 = r * (fb.r0 + 0.2), r1 = r * (fb.r0 + fb.l * 0.5 + 0.22 + 0.03 * Math.sin(t * 1.7 + fb.a * 7));
+      ctx.strokeStyle = fb.dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.16)';
       ctx.beginPath();
       ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
-      ctx.quadraticCurveTo(Math.cos(a + fb.c * 0.25) * (r0 + r1) / 2, Math.sin(a + fb.c * 0.25) * (r0 + r1) / 2,
-        Math.cos(a + fb.c * 0.12) * r1, Math.sin(a + fb.c * 0.12) * r1);
+      ctx.lineTo(Math.cos(a + fb.c * 0.12) * r1, Math.sin(a + fb.c * 0.12) * r1);
       ctx.stroke();
     }
-    // the puffy body: smooth bumps that gently breathe
+    // low-poly body: bump points alternating with slightly sunken points
     const xs = [], ys = [];
-    for (let i = 0; i < K; i++) {
-      const a = (i / K) * Math.PI * 2, b = f.bumps[i];
-      const rr = r * b.r * (1 + 0.035 * Math.sin(t * 1.4 + b.ph));
-      xs.push(Math.cos(a) * rr * 1.12); ys.push(Math.sin(a) * rr * 1.12);
+    for (let i = 0; i < K * 2; i++) {
+      const a = (i / (K * 2)) * Math.PI * 2, b = f.bumps[i >> 1];
+      const rr = r * (i % 2 ? 0.93 : b.r * 1.08) * (1 + 0.035 * Math.sin(t * 1.4 + b.ph + i));
+      xs.push(Math.cos(a) * rr); ys.push(Math.sin(a) * rr);
     }
-    const body = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.05, 0, 0, r * 1.1);
-    body.addColorStop(0, '#ffffff');
-    body.addColorStop(0.55, `rgb(${f.tint})`);
-    body.addColorStop(1, 'rgb(214,206,236)');
-    // scalloped edge: arcs bulging out between the bump points
-    ctx.beginPath();
-    for (let i = 0; i < K; i++) {
-      const j = (i + 1) % K;
-      const mx = (xs[i] + xs[j]) / 2, my = (ys[i] + ys[j]) / 2, ml = Math.hypot(mx, my) || 1;
-      const bulge = r * 0.28;
-      if (i === 0) ctx.moveTo(xs[0], ys[0]);
-      ctx.quadraticCurveTo(mx + (mx / ml) * bulge, my + (my / ml) * bulge, xs[j], ys[j]);
-    }
-    ctx.closePath();
-    ctx.fillStyle = body;
-    ctx.fill();
-    // inner fluff texture
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 14; i++) {
-      const a = i * 2.39996, rr = r * (0.25 + (i % 4) * 0.17);
-      const cx = Math.cos(a) * rr, cy = Math.sin(a) * rr;
-      ctx.beginPath(); ctx.arc(cx, cy, r * 0.16, a, a + 1.8); ctx.stroke();
-    }
+    U.facet(ctx, xs, ys, xs.length, -r * 0.05, -r * 0.08, [245, 245, 245], { lo: 0.62, inner: 0.5 });
     ctx.restore();
   }
 }

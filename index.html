@@ -3,31 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#f7f5f2">
+  <meta name="theme-color" content="#000000">
   <title>さわるオノマトペ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main id="home" class="screen"><div id="tiles" class="tiles"></div></main>
+  <main id="home" class="screen">
+    <p class="label">オノマトペ</p>
+    <ul id="list" class="list"></ul>
+  </main>
 
   <section id="stage" class="screen hidden">
     <header class="top">
-      <button id="btn-home" class="ghost" aria-label="back">←</button>
-      <button id="word" class="word" aria-label="say it">
-        <span id="w-kana" class="kana"></span>
-        <span id="w-romaji" class="romaji"></span>
-      </button>
-      <span class="ghost spacer"></span>
+      <button id="btn-home" class="round" aria-label="back">‹</button>
+      <div class="nav">
+        <button id="btn-prev" class="round" aria-label="previous">↑</button>
+        <button id="btn-next" class="round" aria-label="next">↓</button>
+      </div>
     </header>
-    <div id="canvas-wrap"><canvas id="cv"></canvas></div>
-    <nav class="bottom">
-      <button id="btn-prev" class="ghost" aria-label="previous">‹</button>
-      <button id="btn-reset" class="ghost small" aria-label="reset">↺</button>
-      <button id="btn-next" class="ghost" aria-label="next">›</button>
-    </nav>
+    <button id="word" class="word" aria-label="say it">
+      <span id="w-kana" class="kana"></span>
+      <span id="w-romaji" class="romaji"></span>
+    </button>
+    <div id="canvas-wrap" class="frame">
+      <canvas id="cv"></canvas>
+      <button id="btn-reset" class="reset" aria-label="reset">↺</button>
+    </div>
+    <p class="act"><span id="act-ja" class="ja"></span><span id="act-en" class="en"></span></p>
   </section>
 
   <script src="js/util.js"></script>

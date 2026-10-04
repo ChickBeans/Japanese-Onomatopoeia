@@ -1,6 +1,7 @@
 // ぷるぷる — a custard pudding on a plate that wobbles when you poke it or shake the plate.
 SCENES.push({
   id: 'purupuru', kana: 'ぷるぷる', kata: 'プルプル', romaji: 'puru-puru', emoji: '🍮',
+  act: { ja: 'プリンをつついたり、お皿をゆらしてみよう', en: 'Poke the pudding, or shake the plate.' },
   cue: (s) => { const b = s.body, i = s.topCenter; return { x: b.x[i] + s.R * 0.4, y: b.y[i] + s.R * 0.5 }; },
   color: '#ffe08a', accent: '#d48a10',
   create: (w, h) => new PuruScene(w, h),
@@ -157,79 +158,42 @@ class PuruScene {
 
   draw(ctx) {
     const { w, h, R } = this, b = this.body, pl = this.plate;
-    const bg = ctx.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, '#fff6dc'); bg.addColorStop(1, '#ffe7b8');
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-    // checked tablecloth
-    const ty = pl.rest + 26;
-    ctx.fillStyle = '#ffd7d7'; ctx.fillRect(0, ty, w, h - ty);
-    ctx.fillStyle = 'rgba(230,90,90,0.25)';
-    for (let x = 0; x < w; x += 36) ctx.fillRect(x, ty, 18, h - ty);
-    for (let y = ty; y < h; y += 36) ctx.fillRect(0, y, w, 18);
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
+    const ty = pl.rest + 22;
+    ctx.strokeStyle = INK.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, ty + 0.5); ctx.lineTo(w, ty + 0.5); ctx.stroke();
 
-    // plate
-    ctx.fillStyle = 'rgba(120,60,20,0.18)';
-    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 16, R * 1.9, 16, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 6, R * 1.85, 20, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#c9d6e8'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.strokeStyle = '#e6edf6';
-    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 4, R * 1.35, 12, 0, 0, Math.PI * 2); ctx.stroke();
-
-    // caramel puddle on the plate
-    ctx.fillStyle = 'rgba(160,80,10,0.55)';
-    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 2, R * 1.3, 9, 0, 0, Math.PI * 2); ctx.fill();
+    // plate: a flat faceted disc
+    ctx.fillStyle = '#3a3a3a';
+    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 7, R * 1.75, 13, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#9a9a9a';
+    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 3, R * 1.75, 11, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c4c4c4';
+    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 2, R * 1.3, 7, 0, 0, Math.PI * 2); ctx.fill();
 
     // pudding body
-    U.smoothClosedPath(ctx, b.x, b.y, b.n);
     const c = b.centroid();
-    const g = ctx.createLinearGradient(c.x - R, 0, c.x + R, 0);
-    g.addColorStop(0, '#ffe27a'); g.addColorStop(0.45, '#ffd257'); g.addColorStop(1, '#f0b232');
-    ctx.fillStyle = g;
-    ctx.fill();
+    const [xs, ys] = U.decimate(b.x, b.y, b.n, 2);
+    U.facet(ctx, xs, ys, xs.length, c.x - R * 0.15, c.y - R * 0.1, [226, 186, 104], { lo: 0.35, inner: 0.55 });
+    // caramel cap following the deformed top
     ctx.save();
+    ctx.beginPath();
+    xs.forEach((x, i) => (i ? ctx.lineTo(x, ys[i]) : ctx.moveTo(x, ys[i])));
+    ctx.closePath();
     ctx.clip();
-    // caramel band that follows the deformed top
-    const t = this.topIdx, cth = R * 0.32;
+    const t = this.topIdx, cth = R * 0.3;
     ctx.beginPath();
     t.forEach((i, k) => (k ? ctx.lineTo(b.x[i], b.y[i] - 4) : ctx.moveTo(b.x[i], b.y[i] - 4)));
-    for (let k = t.length - 1; k >= 0; k--) {
-      const i = t[k];
-      ctx.lineTo(b.x[i], b.y[i] + cth);
-    }
+    for (let k = t.length - 1; k >= 0; k--) ctx.lineTo(b.x[t[k]], b.y[t[k]] + cth);
     ctx.closePath();
-    const cg = ctx.createLinearGradient(0, c.y - this.H, 0, c.y - this.H * 0.4);
-    cg.addColorStop(0, '#7a3a08'); cg.addColorStop(1, '#a8560e');
-    ctx.fillStyle = cg;
+    ctx.fillStyle = '#4a3020';
     ctx.fill();
-    // gloss
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.beginPath(); ctx.ellipse(c.x - R * 0.5, c.y - R * 0.05, R * 0.09, R * 0.38, 0.15, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
     const tc = this.topCenter;
-    ctx.beginPath(); ctx.ellipse(b.x[tc] - R * 0.25, b.y[tc] + 8, R * 0.25, 4, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-
-    // whipped cream + cherry riding on top
-    const tx = b.x[tc], tyy = b.y[tc];
-    const a = Math.atan2(b.y[(tc + 1) % b.n] - b.y[(tc - 1 + b.n) % b.n], b.x[(tc + 1) % b.n] - b.x[(tc - 1 + b.n) % b.n]);
-    ctx.save();
-    ctx.translate(tx, tyy);
-    ctx.rotate(a);
-    ctx.fillStyle = '#fffaf2';
     ctx.beginPath();
-    for (let k = 0; k < 4; k++) {
-      ctx.ellipse(0, -R * (0.1 + k * 0.1), R * (0.36 - k * 0.08), R * 0.1, 0, 0, Math.PI * 2);
-    }
+    ctx.moveTo(b.x[tc] - R * 0.5, b.y[tc] + 2); ctx.lineTo(b.x[tc], b.y[tc] + 2); ctx.lineTo(b.x[tc] - R * 0.2, b.y[tc] + cth * 0.6);
     ctx.fill();
-    ctx.strokeStyle = '#3f7a2e'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(0, -R * 0.55); ctx.quadraticCurveTo(R * 0.1, -R * 0.8, R * 0.22, -R * 0.85); ctx.stroke();
-    ctx.fillStyle = '#e8283c';
-    ctx.beginPath(); ctx.arc(0, -R * 0.5, R * 0.13, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.beginPath(); ctx.arc(-R * 0.04, -R * 0.55, R * 0.035, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
-
     this.texts.draw(ctx);
   }
 }

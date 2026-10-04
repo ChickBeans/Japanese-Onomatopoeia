@@ -1,6 +1,7 @@
 // さらさら — scoop up fine dry sand and let it slip through your fingers.
 SCENES.push({
   id: 'sarasara', kana: 'さらさら', kata: 'サラサラ', romaji: 'sara-sara', emoji: '⏳',
+  act: { ja: '砂をすくって、こぼしてみよう', en: 'Scoop up the sand and let it pour.' },
   cue: (s) => ({ x: s.w * 0.3, y: s.h * 0.92, x2: s.w * 0.45, y2: s.h * 0.3, hold: true }),
   color: '#f6e2b0', accent: '#b8862c',
   create: (w, h) => new SaraScene(w, h),
@@ -27,7 +28,7 @@ class SaraScene {
     this.cx = this.cv.getContext('2d');
     this.img = this.cx.createImageData(this.gw, this.gh);
     this.palette = [
-      null, [238, 214, 160], [230, 202, 146], [245, 225, 178], [222, 192, 136], [250, 234, 196], [214, 184, 128],
+      null, [196, 192, 186], [176, 172, 166], [214, 210, 204], [158, 154, 148], [228, 225, 220], [140, 136, 130],
     ];
     this.reset();
   }
@@ -146,16 +147,12 @@ class SaraScene {
 
   draw(ctx) {
     const { w, h, gw, gh, g, img, palette } = this;
-    const sky = ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, '#ffe9c4'); sky.addColorStop(1, '#ffd9a8');
-    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.beginPath(); ctx.arc(w * 0.82, h * 0.14, Math.min(w, h) * 0.07, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
     const d = img.data;
     for (let i = 0, n = gw * gh; i < n; i++) {
       const c = g[i], o = i * 4;
       if (!c) { d[o + 3] = 0; continue; }
-      if (c === 255) { d[o] = 140; d[o + 1] = 98; d[o + 2] = 60; d[o + 3] = 255; continue; }
+      if (c === 255) { d[o] = 70; d[o + 1] = 70; d[o + 2] = 70; d[o + 3] = 255; continue; }
       const col = palette[c];
       d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
     }
@@ -167,17 +164,13 @@ class SaraScene {
     if (this.ptr) {
       const { x, y } = this.ptr;
       // cupped hand
-      ctx.fillStyle = 'rgba(255,214,190,0.55)';
-      ctx.strokeStyle = 'rgba(170,110,90,0.7)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(x, y, 40, 22, 0, 0, Math.PI); ctx.fill(); ctx.stroke();
-      for (let k = -2; k <= 1; k++) {
-        ctx.beginPath(); ctx.ellipse(x + k * 16 + 8, y - 4, 7, 14, 0, Math.PI, 0); ctx.fill(); ctx.stroke();
-      }
       if (this.held > 0) {
-        const hh = Math.min(18, 4 + this.held / 80);
-        ctx.fillStyle = '#e8cf98';
-        ctx.beginPath(); ctx.ellipse(x, y + 2, 30, hh, 0, Math.PI, 0); ctx.fill();
+        const hh = Math.min(16, 4 + this.held / 80);
+        ctx.fillStyle = '#c4c0ba';
+        ctx.beginPath(); ctx.moveTo(x - 30, y); ctx.lineTo(x - 12, y - hh); ctx.lineTo(x + 10, y - hh * 0.8); ctx.lineTo(x + 30, y); ctx.fill();
       }
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x - 38, y - 6); ctx.lineTo(x - 30, y + 10); ctx.lineTo(x + 30, y + 10); ctx.lineTo(x + 38, y - 6); ctx.stroke();
     }
     this.texts.draw(ctx);
   }

@@ -124,34 +124,45 @@ class FluidScene {
   destroy() { if (this.loop) this.loop.stop(); }
 }
 
+// ---------- shared monochrome visuals ----------
+function fluidBackground(ctx, w, h) {
+  ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
+}
+function fluidSpout(ctx, x) {
+  ctx.fillStyle = '#4a4a4a';
+  ctx.beginPath(); ctx.moveTo(x - 28, 0); ctx.lineTo(x + 28, 0); ctx.lineTo(x + 14, 14); ctx.lineTo(x - 14, 14); ctx.fill();
+}
+function stickTool(ctx, p, hp) {
+  ctx.strokeStyle = '#bdbdbd'; ctx.lineWidth = Math.max(4, hp * 0.4); ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(p.x + 10, p.y - 140); ctx.lineTo(p.x, p.y); ctx.stroke();
+}
+function spoonTool(ctx, p, hp) {
+  ctx.fillStyle = '#d0d0d0';
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, hp * 0.75, hp * 1.0, -0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#d0d0d0'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(p.x + hp * 0.2, p.y - hp * 0.9); ctx.lineTo(p.x + hp * 0.9, p.y - hp * 5); ctx.stroke();
+}
+function fingerTool(ctx, p, hp) {
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(p.x, p.y, hp * 0.75, 0, Math.PI * 2); ctx.stroke();
+}
+
 // ---------- どろどろ ----------
 SCENES.push({
   id: 'dorodoro', kana: 'どろどろ', kata: 'ドロドロ', romaji: 'doro-doro', emoji: '🟤',
+  act: { ja: '泥をかき混ぜてみよう', en: 'Stir the mud.' },
   cue: (s) => ({ x: s.w * 0.2, y: s.h * 0.88, x2: s.w * 0.8, y2: s.h * 0.86 }),
   color: '#c9a27e', accent: '#7a4a24',
   create: (w, h) => new FluidScene(w, h, {
     fill: 0.26,
     fluid: { gravity: 0.008, rho0: 2, k: 0.02, kNear: 0.1, sigma: 0.3, beta: 0.2, xsph: 0.4, bulkDrag: 0.04, springs: true, kSpring: 0.05, plasticity: 0.5, yieldRatio: 0.05, wallFriction: 0.5 },
     drag: 0.25, toolR: 1.0, pourRate: 3, spoutW: 2.2,
-    color: { r: 122, g: 80, b: 46 },
-    render: { spec: 0.35, edgeDark: 0.45 },
-    textColor: '#6b3f1d',
-    background(ctx, w, h) {
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#e9ddc9'); g.addColorStop(1, '#d8c3a3');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(110,80,50,0.08)';
-      for (let i = 0; i < 60; i++) ctx.fillRect((i * 97.3) % w, (i * 53.7) % h, 3, 2);
-    },
-    drawSpout(ctx, x) {
-      ctx.fillStyle = '#7d8a96';
-      ctx.beginPath(); ctx.moveTo(x - 40, 0); ctx.lineTo(x + 40, 0); ctx.lineTo(x + 26, 18); ctx.lineTo(x - 26, 18); ctx.fill();
-    },
-    drawTool(ctx, p, hp) {
-      // wooden stick
-      ctx.strokeStyle = '#a77a4b'; ctx.lineWidth = hp * 0.7; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(p.x + 12, p.y - 120); ctx.lineTo(p.x, p.y); ctx.stroke();
-    },
+    color: { r: 92, g: 74, b: 60 },
+    render: { spec: 0.3, edgeDark: 0.5 },
+    textColor: '#eee',
+    background: fluidBackground,
+    drawSpout: fluidSpout,
+    drawTool: stickTool,
     onDown(s, p) {
       Sound.tone({ freq: 90, freqEnd: 55, dur: 0.25, gain: 0.25 });
       Sound.noise({ dur: 0.2, type: 'lowpass', freq: 300, gain: 0.25 });
@@ -175,40 +186,19 @@ SCENES.push({
 // ---------- しゃばしゃば ----------
 SCENES.push({
   id: 'shabashaba', kana: 'しゃばしゃば', kata: 'シャバシャバ', romaji: 'shaba-shaba', emoji: '💧',
+  act: { ja: 'うすいスープをかき混ぜてみよう', en: 'Stir the thin soup.' },
   cue: (s) => ({ x: s.w * 0.2, y: s.h * 0.9, x2: s.w * 0.8, y2: s.h * 0.88, fast: true }),
   color: '#ffd98a', accent: '#c98a12',
   create: (w, h) => new FluidScene(w, h, {
     fill: 0.26,
     fluid: { gravity: 0.008, rho0: 2, k: 0.02, kNear: 0.1, sigma: 0.0, beta: 0.04, wallFriction: 0.02 },
     drag: 0.05, toolR: 1.0, pourRate: 2, spoutW: 0.8,
-    color: { r: 236, g: 176, b: 70, a: 0.82 },
-    render: { spec: 1.0, edgeDark: 0.15, depthAlpha: true },
-    textColor: '#b06d00',
-    background(ctx, w, h) {
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f6ead6');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      // a few rice grains peeking out
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 26; i++) {
-        ctx.save();
-        ctx.translate(w * 0.08 + (i * 37) % (w * 0.84), h - 14 - (i % 3) * 9);
-        ctx.rotate(i);
-        ctx.beginPath(); ctx.ellipse(0, 0, 7, 3.2, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-      }
-    },
-    drawSpout(ctx, x) {
-      ctx.fillStyle = '#c0c6cc';
-      ctx.beginPath(); ctx.ellipse(x, 6, 34, 14, 0, 0, Math.PI * 2); ctx.fill();
-    },
-    drawTool(ctx, p, hp) {
-      // spoon
-      ctx.fillStyle = '#d6dbe0'; ctx.strokeStyle = '#9aa3ad'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(p.x, p.y, hp * 0.9, hp * 1.2, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.strokeStyle = '#c3c9cf';
-      ctx.beginPath(); ctx.moveTo(p.x + hp * 0.25, p.y - hp * 1.1); ctx.lineTo(p.x + hp * 1.0, p.y - hp * 5); ctx.stroke();
-    },
+    color: { r: 200, g: 196, b: 186, a: 0.7 },
+    render: { spec: 1.0, edgeDark: 0.1, depthAlpha: true },
+    textColor: '#eee',
+    background: fluidBackground,
+    drawSpout: fluidSpout,
+    drawTool: spoonTool,
     onDown(s) {
       Sound.noise({ dur: 0.15, type: 'bandpass', freq: 1400, q: 1.5, gain: 0.2 });
       if (!s.loop) s.loop = Sound.loop({ type: 'bandpass', freq: 900, q: 1.2 });
@@ -230,6 +220,7 @@ SCENES.push({
 // ---------- ねちょねちょ ----------
 SCENES.push({
   id: 'nechonecho', kana: 'ねちょねちょ', kata: 'ネチョネチョ', romaji: 'necho-necho', emoji: '🟢',
+  act: { ja: 'スライムに触って、ゆっくり離してみよう', en: 'Touch the slime, then pull away slowly.' },
   cue: (s) => { const f = s.fluid; let t = 0; for (let i = 0; i < f.n; i++) if (f.y[i] < f.y[t]) t = i; const x = f.x[t] * s.hp, y = f.y[t] * s.hp + 8; return { x, y, x2: x + 10, y2: y - s.h * 0.35 }; },
   color: '#b9e58f', accent: '#4f9a1e',
   create: (w, h) => new FluidScene(w, h, {
@@ -240,26 +231,12 @@ SCENES.push({
       stick: 0.08, stickDist: 0.7, wallFriction: 0.6,
     },
     obstacle: false, pourRate: 3, spoutW: 2.5, blobR: 0.85,
-    color: { r: 120, g: 205, b: 70, a: 0.95 },
-    render: { spec: 1.2, edgeDark: 0.4, threshold: 0.5 },
-    textColor: '#3e8a14',
-    background(ctx, w, h) {
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#f2eefa'); g.addColorStop(1, '#e2dcf0');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = 'rgba(120,100,160,0.12)'; ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-      for (let y = 0; y < h; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-    },
-    drawSpout(ctx, x) {
-      ctx.fillStyle = '#8b6cc2';
-      ctx.beginPath(); ctx.moveTo(x - 30, 0); ctx.lineTo(x + 30, 0); ctx.lineTo(x + 14, 22); ctx.lineTo(x - 14, 22); ctx.fill();
-    },
-    drawTool(ctx, p, hp) {
-      // fingertip
-      ctx.fillStyle = 'rgba(255,214,190,0.9)'; ctx.strokeStyle = 'rgba(180,120,100,0.6)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(p.x, p.y, hp * 0.75, hp * 0.9, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    },
+    color: { r: 128, g: 168, b: 108, a: 0.95 },
+    render: { spec: 1.1, edgeDark: 0.45, threshold: 0.5 },
+    textColor: '#eee',
+    background: fluidBackground,
+    drawSpout: fluidSpout,
+    drawTool: fingerTool,
     onDown(s, p) {
       const f = s.fluid, hp = s.hp, tx = p.x / hp, ty = p.y / hp;
       s.attached = [];

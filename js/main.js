@@ -8,12 +8,12 @@
 
   // ---------- home ----------
   SCENES.forEach((s, i) => {
+    const li = document.createElement('li');
     const b = document.createElement('button');
-    b.className = 'tile' + (s.kana.length > 4 ? ' long' : '');
-    b.style.setProperty('--c', s.color);
-    b.textContent = s.kana;
+    b.innerHTML = `<span class="k">${s.kana}</span><span class="r">${s.romaji}</span>`;
     b.addEventListener('click', () => open(i));
-    $('tiles').appendChild(b);
+    li.appendChild(b);
+    $('list').appendChild(li);
   });
 
   // ---------- stage ----------
@@ -34,6 +34,8 @@
     stage.classList.remove('hidden');
     $('w-kana').textContent = s.kana;
     $('w-romaji').textContent = s.romaji;
+    $('act-ja').textContent = s.act.ja;
+    $('act-en').textContent = s.act.en;
     measure();
     scene = s.create(w, h);
     $('btn-reset').classList.toggle('hidden', !(scene.actions && scene.actions.length));

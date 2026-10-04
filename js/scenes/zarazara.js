@@ -1,6 +1,7 @@
 // ざらざら — rub your finger over sandpaper: it catches, judders and scatters grit.
 SCENES.push({
   id: 'zarazara', kana: 'ざらざら', kata: 'ザラザラ', romaji: 'zara-zara', emoji: '🪨',
+  act: { ja: '紙やすりを指でこすってみよう', en: 'Rub the sandpaper with your finger.' },
   cue: (s) => ({ x: s.w * 0.25, y: s.boardH * 0.5, x2: s.w * 0.75, y2: s.boardH * 0.5, rub: true }),
   color: '#d8c3a0', accent: '#8a6a3a',
   create: (w, h) => new ZaraScene(w, h),
@@ -27,13 +28,13 @@ class ZaraScene {
     cv.width = Math.round(w * dpr); cv.height = Math.round(this.boardH * dpr);
     const c = cv.getContext('2d');
     c.scale(dpr, dpr);
-    c.fillStyle = '#b48a55';
+    c.fillStyle = '#3c3c3c';
     c.fillRect(0, 0, w, this.boardH);
     const n = Math.round((w * this.boardH) / 14);
     for (let i = 0; i < n; i++) {
       const x = Math.random() * w, y = Math.random() * this.boardH, s = U.rand(1, 3.6);
       const l = U.rand(28, 72);
-      c.fillStyle = `hsl(${U.rand(25, 40)},${U.rand(25, 45)}%,${l}%)`;
+      c.fillStyle = `hsl(0,0%,${l * 0.7}%)`;
       c.beginPath();
       c.moveTo(x + U.rand(-s, s), y + U.rand(-s, s));
       c.lineTo(x + U.rand(-s, s), y + U.rand(-s, s));
@@ -42,11 +43,11 @@ class ZaraScene {
     }
     // glints on the grains
     for (let i = 0; i < n / 8; i++) {
-      c.fillStyle = 'rgba(255,245,220,0.6)';
+      c.fillStyle = 'rgba(255,255,255,0.5)';
       c.fillRect(Math.random() * w, Math.random() * this.boardH, 1, 1);
     }
     const vg = c.createRadialGradient(w / 2, this.boardH / 2, 10, w / 2, this.boardH / 2, Math.max(w, this.boardH) * 0.7);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(60,30,0,0.25)');
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)');
     c.fillStyle = vg; c.fillRect(0, 0, w, this.boardH);
     this.tex = cv;
     // jagged cross-section profile: one bump every few px
@@ -124,7 +125,7 @@ class ZaraScene {
     // scuff marks
     ctx.lineCap = 'round';
     for (const t of this.trail) {
-      ctx.strokeStyle = `rgba(255,240,210,${0.25 * t.life})`;
+      ctx.strokeStyle = `rgba(255,255,255,${0.2 * t.life})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(t.x - Math.cos(t.a) * 8, t.y - Math.sin(t.a) * 8 + U.rand(-1, 1));
@@ -132,38 +133,38 @@ class ZaraScene {
       ctx.stroke();
     }
     for (const q of this.parts) {
-      ctx.fillStyle = `rgba(110,75,35,${Math.min(1, q.life * 2)})`;
+      ctx.fillStyle = `rgba(170,170,170,${Math.min(1, q.life * 2)})`;
       ctx.fillRect(q.x, q.y, q.s, q.s);
     }
     if (p) {
       const x = p.x + p.jx, y = p.y + p.jy;
-      ctx.fillStyle = 'rgba(255,212,190,0.92)'; ctx.strokeStyle = 'rgba(160,100,80,0.7)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(x, y, 22, 27, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = 'rgba(190,130,110,0.5)'; ctx.lineWidth = 1;
-      for (let r = 5; r < 20; r += 4) { ctx.beginPath(); ctx.ellipse(x, y + 2, r * 0.8, r, 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2); ctx.stroke();
     }
 
     // cross-section panel: the finger riding over the bumps
     const y0 = boardH;
-    ctx.fillStyle = '#fbf6ee'; ctx.fillRect(0, y0, w, secH);
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, y0, w, secH);
+    ctx.strokeStyle = INK.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, y0 + 0.5); ctx.lineTo(w, y0 + 0.5); ctx.stroke();
     const base = y0 + secH - 22;
     ctx.beginPath();
     ctx.moveTo(0, base + 20);
     for (let x = 0; x <= w; x += this.step) ctx.lineTo(x, base - this.profileAt(x));
     ctx.lineTo(w, base + 20);
     ctx.closePath();
-    ctx.fillStyle = '#b48a55'; ctx.fill();
-    ctx.strokeStyle = '#6e4c1e'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#3c3c3c'; ctx.fill();
+    ctx.strokeStyle = '#9a9a9a'; ctx.lineWidth = 1; ctx.stroke();
     const fx = p ? p.x : w / 2;
     const fr = Math.min(34, secH * 0.2);
     let top = 0;
     for (let k = -fr * 0.6; k <= fr * 0.6; k += 2) top = Math.max(top, this.profileAt(U.clamp(fx + k, 0, w)) - (fr - Math.sqrt(fr * fr - k * k)));
     const fy = base - top - fr + (p ? p.jy * 0.6 : 0);
-    ctx.fillStyle = p ? 'rgba(255,212,190,0.95)' : 'rgba(255,212,190,0.5)';
-    ctx.strokeStyle = 'rgba(160,100,80,0.7)'; ctx.lineWidth = 2;
+    ctx.fillStyle = p ? 'rgba(230,230,230,0.95)' : 'rgba(230,230,230,0.35)';
+    ctx.strokeStyle = 'rgba(0,0,0,0)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(fx, fy, fr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     if (p && p.speed > 60) {
-      ctx.strokeStyle = 'rgba(110,76,30,0.7)'; ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.2;
       for (let k = 0; k < 3; k++) {
         const a = -Math.PI / 2 + U.rand(-0.8, 0.8);
         ctx.beginPath();

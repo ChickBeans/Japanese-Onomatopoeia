@@ -1,6 +1,7 @@
 // もちもち — a rice cake stuck to the board: pinch it and it stretches, then slowly comes back.
 SCENES.push({
   id: 'mochimochi', kana: 'もちもち', kata: 'モチモチ', romaji: 'mochi-mochi', emoji: '🍡',
+  act: { ja: 'もちをつまんで引っぱってみよう', en: 'Pinch the mochi and pull.' },
   cue: (s) => { const b = s.body; let t = 0; for (let i = 0; i < b.n; i++) if (b.y[i] < b.y[t]) t = i; return { x: b.x[t] + 20, y: b.y[t] + 6, x2: b.x[t] + 70, y2: b.y[t] - s.R * 1.6 }; },
   color: '#f3e3c7', accent: '#c48a3a',
   create: (w, h) => new MochiScene(w, h),
@@ -128,80 +129,20 @@ class MochiScene {
   }
 
   draw(ctx) {
-    const { w, h, floor, R } = this, b = this.body;
-    // warm kitchen backdrop
-    const bg = ctx.createLinearGradient(0, 0, 0, floor);
-    bg.addColorStop(0, '#fbeedd'); bg.addColorStop(1, '#f6e1c6');
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, floor);
-    // noren-ish stripes
-    ctx.fillStyle = 'rgba(200,120,60,0.06)';
-    for (let x = 0; x < w; x += 46) ctx.fillRect(x, 0, 22, floor);
-    // wooden board
-    ctx.fillStyle = '#d9b07a'; ctx.fillRect(0, floor, w, h - floor);
-    ctx.fillStyle = '#c99c62'; ctx.fillRect(0, floor, w, 6);
-    ctx.strokeStyle = 'rgba(120,80,40,0.18)'; ctx.lineWidth = 1.5;
-    for (let i = 0; i < 6; i++) {
-      const y = floor + 14 + i * ((h - floor) / 6);
-      ctx.beginPath(); ctx.moveTo(0, y);
-      ctx.bezierCurveTo(w * 0.3, y - 6, w * 0.6, y + 6, w, y - 2);
-      ctx.stroke();
-    }
-    // potato-starch powder under the mochi
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    for (let i = 0; i < 70; i++) {
-      const x = w / 2 + Math.sin(i * 12.9898) * R * 1.8, y = floor + 4 + Math.abs(Math.sin(i * 78.233)) * 18;
-      ctx.beginPath(); ctx.arc(x, y, 1.3 + (i % 3) * 0.6, 0, Math.PI * 2); ctx.fill();
-    }
-    // shadow
-    ctx.fillStyle = 'rgba(120,80,40,0.22)';
-    ctx.beginPath(); ctx.ellipse(w / 2, floor + 3, R * 1.25, 9, 0, 0, Math.PI * 2); ctx.fill();
+    const { w, h, floor } = this, b = this.body;
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
+    // board
+    ctx.fillStyle = '#161616'; ctx.fillRect(0, floor, w, h - floor);
+    ctx.strokeStyle = INK.line; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, floor + 0.5); ctx.lineTo(w, floor + 0.5); ctx.stroke();
 
-    // the mochi
-    U.smoothClosedPath(ctx, b.x, b.y, b.n);
     const c = b.centroid();
-    let top = Infinity;
-    for (let i = 0; i < b.n; i++) top = Math.min(top, b.y[i]);
-    const g = ctx.createRadialGradient(c.x - R * 0.35, top + R * 0.35, R * 0.1, c.x, c.y + R * 0.3, R * 2.2);
-    g.addColorStop(0, '#ffffff'); g.addColorStop(0.6, '#fffaf2'); g.addColorStop(1, '#f0e2cc');
-    ctx.fillStyle = g;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(170,130,90,0.35)'; ctx.lineWidth = 2; ctx.stroke();
-    // soft highlight
-    ctx.save();
-    U.smoothClosedPath(ctx, b.x, b.y, b.n);
-    ctx.clip();
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.beginPath(); ctx.ellipse(c.x - R * 0.45, top + R * 0.28, R * 0.32, R * 0.12, -0.35, 0, Math.PI * 2); ctx.fill();
-    // dusting of starch on the skin
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    for (let i = 0; i < 26; i++) {
-      const a = i * 2.4, r = R * (0.2 + (i % 5) * 0.17);
-      ctx.beginPath(); ctx.arc(c.x + Math.cos(a) * r, c.y + Math.sin(a) * r * 0.5, 1.4, 0, Math.PI * 2); ctx.fill();
-    }
-    ctx.restore();
-    // face
-    const fx = c.x, fy = c.y - R * 0.05, stretched = !!this.grab;
-    ctx.strokeStyle = '#5a4030'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    ctx.beginPath();
-    if (stretched) {
-      ctx.moveTo(fx - R * 0.33, fy - 6); ctx.lineTo(fx - R * 0.22, fy); ctx.lineTo(fx - R * 0.33, fy + 6);
-      ctx.moveTo(fx + R * 0.33, fy - 6); ctx.lineTo(fx + R * 0.22, fy); ctx.lineTo(fx + R * 0.33, fy + 6);
-    } else {
-      ctx.arc(fx - R * 0.27, fy + 3, 6, Math.PI * 1.1, Math.PI * 1.9);
-      ctx.moveTo(fx + R * 0.27 + 6 * Math.cos(Math.PI * 1.1), fy + 3 + 6 * Math.sin(Math.PI * 1.1));
-      ctx.arc(fx + R * 0.27, fy + 3, 6, Math.PI * 1.1, Math.PI * 1.9);
-    }
-    ctx.stroke();
-    ctx.beginPath();
-    if (stretched) ctx.arc(fx, fy + 14, 5, 0, Math.PI * 2);
-    else { ctx.moveTo(fx - 6, fy + 10); ctx.quadraticCurveTo(fx, fy + 16, fx + 6, fy + 10); }
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,140,150,0.35)';
-    ctx.beginPath(); ctx.ellipse(fx - R * 0.45, fy + 12, 10, 6, 0, 0, Math.PI * 2); ctx.ellipse(fx + R * 0.45, fy + 12, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+    const [xs, ys] = U.decimate(b.x, b.y, b.n, 2);
+    U.facet(ctx, xs, ys, xs.length, c.x - this.R * 0.1, c.y - this.R * 0.15, [240, 238, 232], { lo: 0.58, inner: 0.6 });
 
     if (this.grab) {
-      ctx.fillStyle = 'rgba(255,170,120,0.35)';
-      ctx.beginPath(); ctx.arc(this.grab.x, this.grab.y, 16, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(this.grab.x, this.grab.y, 14, 0, Math.PI * 2); ctx.stroke();
     }
     this.texts.draw(ctx);
   }

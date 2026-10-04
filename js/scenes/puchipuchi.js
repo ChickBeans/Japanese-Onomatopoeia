@@ -1,6 +1,7 @@
 // ぷちぷち — bubble wrap. Press each bubble until it pops.
 SCENES.push({
   id: 'puchipuchi', kana: 'ぷちぷち', kata: 'プチプチ', romaji: 'puchi-puchi', emoji: '🫧',
+  act: { ja: 'プチプチをつぶしてみよう', en: 'Pop the bubbles.' },
   cue: (s) => { const b = s.bubbles[Math.floor(s.bubbles.length / 2)]; return { x: b.x, y: b.y }; },
   color: '#cfe3ff', accent: '#3b7bd8',
   create: (w, h) => new PuchiScene(w, h),
@@ -66,7 +67,6 @@ class PuchiScene {
     this.texts.add(b.x, b.y - this.r * 1.2, U.pick(['ぷちっ', 'ぷちっ', 'ぱちっ', 'ぷち']), '#2f63b8', 18);
     if (this.popped === this.bubbles.length) {
       this.doneAt = this.t;
-      setTimeout(() => this.texts.add(this.w / 2, this.h / 2, 'ぜんぶ ぷちぷちした！', '#2f63b8', 26), 200);
     }
   }
 
@@ -92,49 +92,34 @@ class PuchiScene {
 
   draw(ctx) {
     const { w, h, r } = this;
-    ctx.fillStyle = '#e9f2fc'; ctx.fillRect(0, 0, w, h);
-    // the plastic sheet sheen
-    const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, 'rgba(255,255,255,0.6)'); g.addColorStop(0.5, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0.4)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-
+    ctx.fillStyle = INK.bg; ctx.fillRect(0, 0, w, h);
     for (const b of this.bubbles) {
       if (b.state === 1) {
-        // flattened, crinkled plastic
+        // flattened plastic: a dull crumpled polygon
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(b.rot);
         ctx.beginPath();
         b.crinkle.forEach((c, k) => {
           const a = (k / b.crinkle.length) * Math.PI * 2;
-          const x = Math.cos(a) * r * c, y = Math.sin(a) * r * c;
-          k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+          k ? ctx.lineTo(Math.cos(a) * r * c, Math.sin(a) * r * c) : ctx.moveTo(Math.cos(a) * r * c, Math.sin(a) * r * c);
         });
         ctx.closePath();
-        ctx.fillStyle = 'rgba(200,215,235,0.55)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(140,165,200,0.6)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#1a1a1a'; ctx.fill();
+        ctx.strokeStyle = '#3a3a3a'; ctx.lineWidth = 1; ctx.stroke();
         ctx.restore();
         continue;
       }
-      const s = 1 - b.press * 0.18, sy = 1 - b.press * 0.32;
-      ctx.save();
-      ctx.translate(b.x, b.y);
-      ctx.fillStyle = 'rgba(90,120,170,0.15)';
-      ctx.beginPath(); ctx.ellipse(r * 0.12, r * 0.18, r * 1.0, r * 0.95, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.scale(s + b.press * 0.25, sy);
-      const bg = ctx.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r);
-      bg.addColorStop(0, 'rgba(255,255,255,0.95)');
-      bg.addColorStop(0.5, 'rgba(225,238,255,0.6)');
-      bg.addColorStop(1, 'rgba(160,190,230,0.7)');
-      ctx.fillStyle = bg;
-      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(130,160,210,0.7)'; ctx.lineWidth = 1.2; ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,0.95)';
-      ctx.beginPath(); ctx.ellipse(-r * 0.38, -r * 0.42, r * 0.22, r * 0.12, -0.6, 0, Math.PI * 2); ctx.fill();
-      ctx.restore();
+      // intact bubble: a faceted dome that squashes while pressed
+      const sx = 1 + b.press * 0.12, sy = 1 - b.press * 0.3;
+      const xs = [], ys = [];
+      for (let k = 0; k < 10; k++) {
+        const a = (k / 10) * Math.PI * 2 + b.rot * 0.1;
+        xs.push(b.x + Math.cos(a) * r * sx); ys.push(b.y + Math.sin(a) * r * sy);
+      }
+      U.facet(ctx, xs, ys, 10, b.x - r * 0.2, b.y - r * 0.25 * sy, [225, 225, 225], { lo: 0.32, inner: 0.5 });
     }
-    ctx.strokeStyle = 'rgba(80,130,210,0.8)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1;
     for (const q of this.parts) {
       ctx.globalAlpha = q.life * 4;
       ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(q.x - q.vx * 0.04, q.y - q.vy * 0.04); ctx.stroke();

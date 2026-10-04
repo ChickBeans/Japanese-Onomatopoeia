@@ -1,47 +1,62 @@
+/* Monochrome notebook: black page, one square stage per word, words set large. */
 :root {
-  --bg: #f7f5f2;
-  --ink: #2b2930;
-  --faint: rgba(43, 41, 48, 0.35);
-  --font: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, sans-serif;
+  --bg: #000000;
+  --surface: #0d0d0d;
+  --line: #262626;
+  --mute: #7a7a7a;
+  --fg: #f2f2f2;
+  --font: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font); }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font-family: var(--font); }
 body { overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
 button { font-family: inherit; color: inherit; cursor: pointer; border: none; background: none; padding: 0; }
+button:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
 .hidden { display: none !important; }
 
-/* ---------- home: just the words ---------- */
-#home { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: max(24px, env(safe-area-inset-top)) 16px 24px; }
-.tiles { width: 100%; max-width: 720px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.tile {
-  aspect-ratio: 1; border-radius: 28px; background: var(--c);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; font-weight: 800; letter-spacing: 0.02em;
-  transition: transform 0.25s cubic-bezier(.3, 1.6, .5, 1);
+/* ---------- home: a plain list of words ---------- */
+#home { max-width: 560px; margin: 0 auto; padding: max(28px, env(safe-area-inset-top)) 24px 40px; }
+.label { margin: 0 0 12px; font-size: 13px; color: var(--mute); letter-spacing: 0.12em; }
+.list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.list button {
+  width: 100%; display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  padding: 18px 2px; border-bottom: 1px solid var(--line); text-align: left;
 }
-.tile.long { font-size: 20px; }
-.tile:hover { transform: scale(1.04); }
-.tile:active { transform: scale(0.94); }
+.list .k { font-size: 26px; font-weight: 700; letter-spacing: 0.02em; }
+.list .r { font-size: 12px; color: var(--mute); letter-spacing: 0.08em; }
+.list button:hover .k { opacity: 0.7; }
 
 /* ---------- stage ---------- */
-#stage { position: fixed; inset: 0; display: flex; flex-direction: column; }
-.top, .bottom { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; }
-.top { height: 76px; padding-top: env(safe-area-inset-top); box-sizing: content-box; }
-.bottom { height: 56px; padding-bottom: env(safe-area-inset-bottom); box-sizing: content-box; }
-.ghost { width: 48px; height: 48px; font-size: 26px; color: var(--faint); border-radius: 50%; transition: color 0.2s; }
-.ghost:hover { color: var(--ink); }
-.ghost.small { font-size: 22px; }
-.spacer { display: block; }
-.word { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
-.word .kana { font-size: clamp(30px, 8vw, 40px); font-weight: 800; }
-.word .romaji { font-size: 12px; color: var(--faint); letter-spacing: 0.08em; margin-top: 4px; }
-.word.say .kana { animation: say 0.45s ease; }
-@keyframes say { 30% { transform: scale(1.12); } }
-
-#canvas-wrap { position: relative; flex: 1; min-height: 0; overflow: hidden; }
-#cv { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
-
-@media (min-width: 900px) {
-  #canvas-wrap { margin: 0 auto; width: min(100%, 1000px); border-radius: 24px; }
+#stage {
+  position: fixed; inset: 0; margin: 0 auto; max-width: 560px;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: max(12px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
 }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.nav { display: flex; gap: 8px; }
+.round {
+  width: 44px; height: 44px; border-radius: 50%; background: #1c1c1c; color: var(--fg);
+  font-size: 22px; line-height: 44px; text-align: center;
+}
+.round:hover { background: #2a2a2a; }
+.word { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 4px 2px 0; }
+.word .kana { font-size: clamp(30px, 9vw, 44px); font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+.word .romaji { font-size: 13px; color: var(--mute); letter-spacing: 0.08em; }
+.word.say .kana { animation: say 0.4s ease; }
+@keyframes say { 40% { opacity: 0.45; } }
+
+.frame {
+  position: relative; width: 100%; max-width: calc(100dvh - 300px); min-width: 0; aspect-ratio: 1;
+  align-self: center; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--surface);
+}
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+.reset { position: absolute; right: 8px; bottom: 8px; width: 36px; height: 36px; color: var(--mute); font-size: 18px; }
+.reset:hover { color: var(--fg); }
+
+.act { margin: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 2px; }
+.act .ja { font-size: 17px; line-height: 1.6; }
+.act .en { font-size: 13px; color: var(--mute); }
+
+@media (prefers-reduced-motion: reduce) { .word.say .kana { animation: none; } }
