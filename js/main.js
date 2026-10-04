@@ -39,7 +39,7 @@
     $('btn-reset').classList.toggle('hidden', !(scene.actions && scene.actions.length));
     cue.reset();
     say();
-    if (location.hash !== '#' + s.id) history.replaceState(null, '', '#' + s.id);
+    if (location.hash !== '#' + s.id) try { history.replaceState(null, '', '#' + s.id); } catch (e) {}
   }
 
   function close(showHome = true) {
@@ -50,7 +50,7 @@
     if (showHome) {
       stage.classList.add('hidden');
       home.classList.remove('hidden');
-      history.replaceState(null, '', location.pathname + location.search);
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     }
   }
 
